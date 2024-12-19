@@ -65,7 +65,7 @@ def create_gradio_interface():
     input_image = gr.Image(
         label="Upload Image",
         type="numpy",
-        tool="upload"
+        sources="upload"
     )
     
     # Get available background removal methods from ImageProcessor
@@ -110,11 +110,11 @@ def create_gradio_interface():
             info="Blue component of background color"
         )
     
-    # Define output
+    # Define output with PNG format
     output_image = gr.Image(
         label="Processed Image",
         type="numpy",
-        tool=None
+        format="png"  # Added this line to force PNG format
     )
     
     # Create interface
@@ -140,11 +140,6 @@ def create_gradio_interface():
         - Automatic image validation and resizing
         - Support for high-resolution images
         """,
-        examples=[
-            ["example1.jpg", "basic", "none", 173, 216, 230],
-            ["example2.jpg", "alpha_matting", "sepia", 255, 200, 200],
-            ["example3.jpg", "colored_background", "edge_detect", 200, 200, 200]
-        ],
         cache_examples=True,
         theme=gr.themes.Soft()
     )
@@ -162,8 +157,8 @@ if __name__ == "__main__":
         iface = create_gradio_interface()
         iface.launch(
             server_name="0.0.0.0",
-            server_port=7868,
-            share=True
+            server_port=7860,
+            share=False
         )
     except Exception as e:
         logger.error(f"Application startup error: {e}")
