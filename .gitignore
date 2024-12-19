@@ -154,5 +154,6 @@ dmypy.json
 # Cython debug symbols
 cython_debug/
 
-# Exclude the output image directory
+# Exclude the output and the input image directory
 output_images/*
+input_images/*
