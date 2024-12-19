@@ -28,7 +28,7 @@ def get_output_path(filename):
 input_path = 'group.jpg'  # Specify the input image file path
 input_image = Image.open(input_path)
 
-# 1. Basic removal (default method)
+# 1. Basic removal (default method)~
 # Remove the background using the default method and save the output
 basic_output = remove(input_image)
 basic_output.save(get_output_path('basic_remove_output.png'))
