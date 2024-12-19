@@ -1,4 +1,4 @@
-# Image Processing Application Documentation
+# IM_process
 
 ## Overview
 This application provides a web-based interface for advanced image processing operations, including background removal, filter application, and image transformation.
@@ -67,7 +67,7 @@ onnxruntime>=1.15.0
 
 1. Clone the repository:
 ```bash
-git clone https://github.com/Jaizxzx/im_app.git
+git clone [https://github.com/Jaizxzx/im_app.git](https://github.com/Jaizxzx/IM_process.git)
 cd image-processing-app
 ```
 
