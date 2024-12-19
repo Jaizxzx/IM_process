@@ -3,6 +3,9 @@
 ## Overview
 This application provides a web-based interface for advanced image processing operations, including background removal, filter application, and image transformation.
 
+[![Try on Hugging Face](https://img.shields.io/badge/Hugging%20Face-Try-orange?logo=huggingface)](https://huggingface.co/spaces/Jaizxzx/im_process)
+
+
 ## Features
 - Background removal with multiple methods
 - Image filtering and effects
