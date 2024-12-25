@@ -117,7 +117,11 @@ class ImageProcessor:
             "blur": lambda img: cv2.GaussianBlur(img, (5, 5), 0),
             "sharpen": lambda img: ImageProcessor._sharpen_image(img),
             "edge_detect": lambda img: cv2.Canny(img, 100, 200),
-            "none": lambda img: img
+            "none": lambda img: img,
+            "emboss": lambda img: ImageProcessor._apply_emboss(img),
+            "sketch": lambda img: ImageProcessor._apply_sketch(img),
+            "watercolor": lambda img: ImageProcessor._apply_watercolor(img),
+            "invert": lambda img: cv2.bitwise_not(img)
         }
         
         # Apply selected filter
@@ -143,6 +147,86 @@ class ImageProcessor:
             [-1, -1, -1]
         ])
         return cv2.filter2D(image, -1, kernel)
+    
+    @staticmethod
+    def _apply_emboss(image: np.ndarray) -> np.ndarray:
+        """Apply emboss effect"""
+        kernel = np.array([[-2,-1,0], [-1,1,1], [0,1,2]])
+        return cv2.filter2D(image, -1, kernel) + 128
+
+    @staticmethod
+    def _apply_sketch(image: np.ndarray) -> np.ndarray:
+        """Create pencil sketch effect"""
+        gray = cv2.cvtColor(image, cv2.COLOR_RGB2GRAY)
+        blur = cv2.GaussianBlur(gray, (5,5), 0)
+        sketch = cv2.divide(gray, blur, scale=256.0)
+        return cv2.cvtColor(sketch, cv2.COLOR_GRAY2RGB)
+
+    @staticmethod
+    def _apply_watercolor(image: np.ndarray) -> np.ndarray:
+        """Create watercolor effect"""
+        temp = cv2.stylization(image, sigma_s=60, sigma_r=0.6)
+        return cv2.edgePreservingFilter(temp, flags=1, sigma_s=64, sigma_r=0.2)
+    
+    @staticmethod
+    def adjust_image(
+        image: np.ndarray,
+        brightness: float = 1.0,
+        contrast: float = 1.0,
+        saturation: float = 1.0,
+        rotation: int = 0,
+        flip_horizontal: bool = False,
+        flip_vertical: bool = False
+    ) -> np.ndarray:
+        """
+        Apply various adjustments to the image
+        
+        Args:
+            image: Input image
+            brightness: Brightness factor (0.0 to 2.0)
+            contrast: Contrast factor (0.0 to 2.0)
+            saturation: Saturation factor (0.0 to 2.0)
+            rotation: Rotation angle in degrees
+            flip_horizontal: Whether to flip horizontally
+            flip_vertical: Whether to flip vertically
+        """
+        try:
+            # Convert to float for processing
+            img_float = image.astype(float)
+            
+            # Apply brightness
+            img_float = cv2.multiply(img_float, brightness)
+            
+            # Apply contrast
+            mean = np.mean(img_float)
+            img_float = (img_float - mean) * contrast + mean
+            
+            # Apply saturation
+            if len(image.shape) == 3:  # Only for color images
+                hsv = cv2.cvtColor(np.clip(img_float, 0, 255).astype(np.uint8), cv2.COLOR_RGB2HSV)
+                hsv[:, :, 1] = hsv[:, :, 1] * saturation
+                img_float = cv2.cvtColor(hsv, cv2.COLOR_HSV2RGB).astype(float)
+            
+            # Clip values
+            img_float = np.clip(img_float, 0, 255).astype(np.uint8)
+            
+            # Apply rotation
+            if rotation != 0:
+                center = (image.shape[1] // 2, image.shape[0] // 2)
+                matrix = cv2.getRotationMatrix2D(center, rotation, 1.0)
+                img_float = cv2.warpAffine(img_float, matrix, (image.shape[1], image.shape[0]))
+            
+            # Apply flips
+            if flip_horizontal:
+                img_float = cv2.flip(img_float, 1)
+            if flip_vertical:
+                img_float = cv2.flip(img_float, 0)
+            
+            return img_float
+            
+        except Exception as e:
+            print(f"Image adjustment error: {e}")
+            return image
     
     @staticmethod
     def convert_to_format(

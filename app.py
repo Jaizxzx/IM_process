@@ -15,7 +15,13 @@ def process_image_pipeline(
     filter_type: str,
     bg_color_r: int,
     bg_color_g: int,
-    bg_color_b: int
+    bg_color_b: int,
+    brightness: float,
+    contrast: float,
+    saturation: float,
+    rotation: int,
+    flip_horizontal: bool,
+    flip_vertical: bool
 ) -> np.ndarray:
     """Process image with selected parameters"""
     try:
@@ -31,6 +37,17 @@ def process_image_pipeline(
         bg_color = (bg_color_r, bg_color_g, bg_color_b, 255)
         
         try:
+            # Apply adjustments first
+            input_image = ImageProcessor.adjust_image(
+                input_image,
+                brightness=brightness,
+                contrast=contrast,
+                saturation=saturation,
+                rotation=rotation,
+                flip_horizontal=flip_horizontal,
+                flip_vertical=flip_vertical
+            )
+            
             # Process image using the ImageProcessor class
             # First remove background
             processed = ImageProcessor.remove_background(
@@ -78,7 +95,8 @@ def create_gradio_interface():
     
     # Define available filters from the image processor's filter dictionary
     filter_type = gr.Dropdown(
-        choices=["none", "grayscale", "sepia", "blur", "sharpen", "edge_detect"],
+        choices=["none", "grayscale", "sepia", "blur", "sharpen", 
+                "edge_detect", "emboss", "sketch", "watercolor", "invert"],
         value="none",
         label="Filter Type",
         info="Select a filter to apply to the image"
@@ -110,6 +128,46 @@ def create_gradio_interface():
             info="Blue component of background color"
         )
     
+    with gr.Row():
+        brightness = gr.Slider(
+            minimum=0.0,
+            maximum=2.0,
+            value=1.0,
+            step=0.1,
+            label="Brightness"
+        )
+        contrast = gr.Slider(
+            minimum=0.0,
+            maximum=2.0,
+            value=1.0,
+            step=0.1,
+            label="Contrast"
+        )
+        saturation = gr.Slider(
+            minimum=0.0,
+            maximum=2.0,
+            value=1.0,
+            step=0.1,
+            label="Saturation"
+        )
+    
+    with gr.Row():
+        rotation = gr.Slider(
+            minimum=-180,
+            maximum=180,
+            value=0,
+            step=90,
+            label="Rotation"
+        )
+        flip_horizontal = gr.Checkbox(
+            label="Flip Horizontal",
+            value=False
+        )
+        flip_vertical = gr.Checkbox(
+            label="Flip Vertical",
+            value=False
+        )
+
     # Define output with PNG format
     output_image = gr.Image(
         label="Processed Image",
@@ -126,7 +184,13 @@ def create_gradio_interface():
             filter_type,
             bg_color_r,
             bg_color_g,
-            bg_color_b
+            bg_color_b,
+            brightness,
+            contrast,
+            saturation,
+            rotation,
+            flip_horizontal,
+            flip_vertical
         ],
         outputs=output_image,
         title="Advanced Image Processing Tool",

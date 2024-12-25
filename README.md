@@ -8,7 +8,7 @@ This application provides a web-based interface for advanced image processing op
 
 ## Features
 - Background removal with multiple methods
-- Image filtering and effects
+- Image filtering and effects + Basic Image editing features
 - Custom background color selection
 - Automatic image validation and resizing
 - Support for high-resolution images up to 4K
